@@ -27,7 +27,7 @@ jobs:
           VERSION=${{ steps.version.outputs.version }}
           ZIP_NAME="panther-${VERSION}.zip"
           # Zip the extension source, excluding VCS and CI metadata
-          zip -r "$ZIP_NAME" . -x "*.git*" ".github/*"
+          zip -r "$ZIP_NAME" . -x "*.git*" ".github/*" "node_modules/*" "package-lock.json"
           echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
         shell: bash
 

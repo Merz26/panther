@@ -1,0 +1,12 @@
+{
+  "name": "panther",
+  "version": "1.3.0",
+  "private": true,
+  "description": "Build tooling for the Panther Chromium extension.",
+  "scripts": {
+    "build": "node esbuild.config.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}
