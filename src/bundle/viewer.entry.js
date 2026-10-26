@@ -1,9 +1,17 @@
 // Injected into the viewer window. Waits for all images in the cloned
-// document to finish loading, then triggers the browser print dialog.
+// document to finish loading, triggers the print dialog, and closes the
+// window once the user dismisses it.
 
-import { waitImages, nextFrame } from "../core/utils.js";
+import { waitImages, nextFrame, timeout } from "../core/utils.js";
 
 const CONTAINER = document.getElementById("page-container");
+// Safety valve: if the afterprint event never fires (some browsers/VMs don't
+// emit it), close the viewer anyway so it can't hang forever.
+const AUTO_CLOSE_MS = 60000;
+
+function closeViewer() {
+    window.close();
+}
 
 async function run() {
     if (!CONTAINER) {
@@ -22,7 +30,17 @@ async function run() {
         }
     }
     await nextFrame();
+
     window.print();
+
+    // Close as soon as the print dialog is dismissed. If afterprint never
+    // fires, fall back to a timeout so the viewer can't hang forever.
+    Promise.race([
+        new Promise((resolve) =>
+            window.addEventListener("afterprint", resolve, { once: true })
+        ),
+        timeout(AUTO_CLOSE_MS, "auto-close"),
+    ]).then(closeViewer);
 }
 
 run();

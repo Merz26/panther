@@ -14,20 +14,27 @@ var pantherBundle = (() => {
       })
     );
     const delay = new Promise((resolve) => requestAnimationFrame(resolve));
-    const timeout = new Promise(
+    const timeout2 = new Promise(
       (_, reject) => setTimeout(
         () => reject(new Error("Timed out waiting for images to load")),
         timeoutMs
       )
     );
-    return Promise.race([Promise.all([...promises]).then(() => delay), timeout]);
+    return Promise.race([Promise.all([...promises]).then(() => delay), timeout2]);
   }
   function nextFrame() {
     return new Promise((resolve) => requestAnimationFrame(resolve));
   }
+  function timeout(ms, error) {
+    return new Promise((_, reject) => setTimeout(() => reject(error), ms));
+  }
 
   // src/bundle/viewer.entry.js
   var CONTAINER = document.getElementById("page-container");
+  var AUTO_CLOSE_MS = 6e4;
+  function closeViewer() {
+    window.close();
+  }
   async function run() {
     if (!CONTAINER) {
       alert("Page container element not found");
@@ -44,6 +51,12 @@ var pantherBundle = (() => {
     }
     await nextFrame();
     window.print();
+    Promise.race([
+      new Promise(
+        (resolve) => window.addEventListener("afterprint", resolve, { once: true })
+      ),
+      timeout(AUTO_CLOSE_MS, "auto-close")
+    ]).then(closeViewer);
   }
   run();
 })();
