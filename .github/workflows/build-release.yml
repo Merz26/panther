@@ -1,0 +1,45 @@
+name: Build Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read version from manifest.json
+        id: version
+        run: |
+          VERSION=$(jq -r '.version' manifest.json)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $VERSION"
+
+      - name: Package extension
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          ZIP_NAME="panther-${VERSION}.zip"
+          # Zip the extension source, excluding VCS and CI metadata
+          zip -r "$ZIP_NAME" . -x "*.git*" ".github/*"
+          echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Create release and upload artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Panther v${{ steps.version.outputs.version }}
+          body: |
+            Automated build of the Panther extension.
+
+            **Version:** ${{ steps.version.outputs.version }}
+            **Commit:** ${{ github.sha }}
+          files: panther-${{ steps.version.outputs.version }}.zip
+          make_latest: true
