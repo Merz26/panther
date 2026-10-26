@@ -1,0 +1,67 @@
+{
+"update_url": "https://clients2.google.com/service/update2/crx",
+
+    "name": "Panther",
+    "description": "A simple tool to export accessible Studocu pages into PDF.",
+    "version": "1.2.2.4",
+    "manifest_version": 3,
+    "icons": {
+        "16": "src/assets/icon/icon16.png",
+        "32": "src/assets/icon/icon32.png",
+        "48": "src/assets/icon/icon48.png",
+        "128": "src/assets/icon/icon128.png"
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "src/bundle/viewer.bundle.js",
+                "src/assets/bootstrap/bootstrap.min.css",
+                "src/assets/modals/papersize.html",
+                "src/assets/modals/papersize.js"
+            ],
+            "matches": [
+                "https://www.studocu.com/*",
+                "https://www.studeersnel.nl/*",
+                "https://www.studocu.id/*",
+                "https://www.studocu.vn/*"
+            ]
+        }
+    ],
+    "host_permissions": [
+        "https://www.studocu.com/*",
+        "https://www.studeersnel.nl/*",
+        "https://www.studocu.id/*",
+        "https://www.studocu.vn/*"
+    ],
+    "permissions": [
+        "activeTab",
+        "cookies",
+        "scripting"
+    ],
+    "background": {
+        "service_worker": "./src/background/background.js",
+        "type": "module"
+    },
+    "action": {
+        "default_popup": "./src/popup/popup.html",
+        "default_icon": {
+            "16": "./src/assets/icon/icon16.png",
+            "32": "./src/assets/icon/icon32.png",
+            "48": "./src/assets/icon/icon48.png",
+            "128": "./src/assets/icon/icon128.png"
+        }
+    },
+    "content_scripts": [
+        {
+            "css": [
+                "./src/assets/styles/content.css"
+            ],
+            "matches": [
+                "https://www.studocu.com/*",
+                "https://www.studeersnel.nl/*",
+                "https://www.studocu.id/*",
+                "https://www.studocu.vn/*"
+            ]
+        }
+    ]
+}
